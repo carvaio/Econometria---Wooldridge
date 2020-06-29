@@ -1,0 +1,95 @@
+---
+title: "Lista 3 - Econometria"
+author: "Carolina Carvalho"
+output:
+  html_document: default
+  pdf_document: default
+---
+### Questão 5.a)
+```{r setup, include=TRUE, message=FALSE, warning = FALSE}
+library(wooldridge)
+library(dynlm)
+
+data("hprice1")
+```
+Definindo variáveis e o modelo linear
+```{r , include=TRUE, message=FALSE, warning = FALSE}
+y <- log(hprice1$price)
+x1 <- hprice1$sqrft
+x2 <- hprice1$bdrms
+
+linearMod <- lm(y ~ x1 + x2, data=hprice1)
+```
+Realizando a regressão
+```{r , include=TRUE, message=FALSE, warning = FALSE}
+summary(linearMod)
+```
+Definindo estimadores
+```{r , include=TRUE, message=FALSE, warning = FALSE}
+out <- summary(linearMod)
+
+b0 <- out$coefficients[1]
+b1 <- out$coefficients[2]
+b2 <- out$coefficients[3]
+```
+O valor estimado de beta 0 é:
+``` {r, echo = FALSE, message = FALSE, warning = FALSE}
+print(b0)
+```
+O valor estimado de beta 1 é:
+``` {r, echo = FALSE, message = FALSE, warning = FALSE}
+print(b1)
+```
+O valor estimado de beta 2 é:
+``` {r, echo = FALSE, message = FALSE, warning = FALSE}
+print(b2)
+```
+Encontrando o valor estimado de teta:
+```{r , include=TRUE, message=FALSE, warning = FALSE}
+teta <-150*b1+b2
+```
+
+``` {r, echo = FALSE, message = FALSE, warning = FALSE}
+print(teta)
+```
+Sendo assim, um aumento de 150 em sqrft eleva o preço em 8,6%.
+
+### Questão 5.b)
+Substituindo beta2 em termos de omega e beta1:
+```{r , include=TRUE, message=FALSE, warning = FALSE}
+#beta2=teta-150*beta1
+#y=bo+b1*sqrft+(teta-150*b1)*bdrms
+#y=bo+b1*(sqrft-150*bdrms)+teta*bdrms
+
+
+y <- log(hprice1$price)
+x1 <- hprice1$sqrft-150*hprice1$bdrms
+x2 <- hprice1$bdrms
+
+linearMod_b <- lm(y ~ x1 + x2, data=hprice1)
+
+summary(linearMod_b)
+```
+
+### Questão 5.c)
+
+Encontrando o erro padrão do estimador teta:
+```{r , include=TRUE, message=FALSE, warning = FALSE}
+out_b <-summary(linearMod_b)
+teta <- out_b$coefficients[3,1]
+se_teta <- out_b$coefficients[3,2]
+```
+
+``` {r, echo = FALSE, message = FALSE, warning = FALSE}
+print(se_teta)
+```
+Encontrando o intervalo de confiança para alfa=0,05:
+```{r , include=TRUE, message=FALSE, warning = FALSE}
+IC_bottom <- teta - 1.96*se_teta
+IC_top <- teta +1.96*se_teta  
+IC <- c(IC_bottom, IC_top)
+```
+
+``` {r, echo = FALSE, message = FALSE, warning = FALSE}
+print(IC)
+```

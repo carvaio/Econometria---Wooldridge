@@ -1,0 +1,108 @@
+---
+title: "Econometria - Questao 6 - Lista 3"
+author: "Carolina Carvalho"
+output: html_document
+---
+  
+### Questão 6.a)
+  
+```{r , include=TRUE, message=FALSE, warning = FALSE}
+library("lmtest")
+library(wooldridge)
+library(dynlm)
+library("sandwich")
+library(carData)
+library(car)
+
+data("fertil2")
+```
+Para encontrar o erro padrão usual heterocedástico:
+```{r , include=TRUE, message=FALSE, warning = FALSE}
+
+y <- fertil2$children
+x1 <- fertil2$age
+x2 <- (fertil2$age)^2
+x3 <- fertil2$educ
+x4 <- fertil2$electric
+x5 <- fertil2$urban
+
+linearMod_usual <- lm(y ~ x1 + x2 + x3+ x4 +x5 , data=fertil2)
+
+summary(linearMod_usual)
+```
+
+Para encontrar o erro padrão robusto heterocedástico:
+```{r , include=TRUE, message=FALSE, warning = FALSE}
+
+coeftest(linearMod_usual, vcov = vcovHC(linearMod_usual, type="HC1"))
+
+```
+Comparando os valores de ambas regressões, chegamos a conclusão de que o erro padrão robusto nem sempre é maior que o usual.
+
+Para as variáveis explicativas age,ageˆ2 e educ, os erros padrões robustos heterocedásticos são um pouco maiores que os erros padrões usuais. Em contraste, electric e urban possuem erros padrões usuais maiores.
+
+### Questão 6.b)
+Adicionando variávies
+```{r , include=TRUE, message=FALSE, warning = FALSE}
+x6 <-fertil2$spirit 
+x7 <-fertil2$protest 
+x8 <-fertil2$catholic 
+
+linearMod_usual <- lm(y ~ x1 + x2 + x3+ x4 +x5 + x6 + x7 + x8, data=fertil2)
+
+linearHypothesis(linearMod_usual, c("x6=0", "x7=0", "x8=0"))
+
+```
+Logo, a estatística F para esse teste conjunto é  2,1961 e o p-valor usual é 0,08641. 
+
+Considerando df=3 e infinito, encontramos c=2,30 no nível 10%
+
+Como F<c, as variáveis são conjuntamente insignificantes.
+
+Para encontrar o p-valor robusto:
+```{r , include=TRUE, message=FALSE, warning = FALSE}
+linearHypothesis(linearMod_usual, c("x6=0", "x7=0", "x8=0"), white.adjust = "hc1")
+```
+Logo, p-valor robusto é 0,0911.
+
+### Questão 6.c)
+
+Encontrando valores fitados:
+```{r , include=TRUE, message=FALSE, warning = FALSE}
+y_chapeu <- fitted(linearMod_usual)
+y_chapeu_2 <- y_chapeu^2
+
+u_chapeu <- resid(linearMod_usual)
+u_chapeu_2 <- u_chapeu^2
+```
+
+Regridindo:
+```{r , include=TRUE, message=FALSE, warning = FALSE}
+linearModel_fit <- lm(u_chapeu_2 ~ y_chapeu + y_chapeu_2)
+
+out <- summary(linearModel_fit)
+
+print(out)
+```
+
+Testando a significância conjunta dos dois regressores: 
+```{r , include=TRUE, message=FALSE, warning = FALSE}
+teste <- linearHypothesis(linearModel_fit, c("y_chapeu","y_chapeu_2"))
+
+print(teste)
+```
+Observando o p-valor:
+```{r , include=TRUE, message=FALSE, warning = FALSE}
+p_valor <-teste$`Pr(>F)`
+
+print(p_valor)
+```
+Podemos concluir que há heterocedasticidade na equação, visto que a estatística F é maior que o p_valor_het, de forma que rejeitamos a hipótese de que há homoscedasticidade.
+
+### Questão 6.d)
+
+Como a amostra é grande, a estatística F robusta se aproxima da distribuição F, de forma que a heterocedasticidade encontrada na letra c) não é fundamentalmente importante. É possível trabalhar com a regressão apresentada apesar da hipótese de homoscedasticidade não ser válida.
+
+
+
+

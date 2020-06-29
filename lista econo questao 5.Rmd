@@ -1,0 +1,61 @@
+---
+title: "Questao 5"
+author: "Carolina Carvalho"
+output:
+  html_document: default
+  pdf_document: default
+---
+### Questão a)
+```{r setup, include=TRUE, message=FALSE, warning = FALSE}
+#Pacotes necessários
+library(wooldridge)
+library("lmtest")
+library("AER")
+
+#Base de dados 
+data("wage2")
+
+#Realizando regressão
+linearMod <- lm(log(wage2$wage) ~ wage2$sibs , data=wage2)
+
+summary(linearMod)
+```
+Observando o dados oferecidos, podemos concluir que o acréscimo de uma 1 unidade de sibs causa uma redução de -2,8% no salário.
+A estatítica t é de aproximadamente -4,723.
+
+### Questão b)
+
+Sibs e brthord devem ser negativamente correlacionadas pois à medida que uma família recebe mais filhos, tudo mais constante, espera-se que o orçamento familiar fique mais apertado, dificultando a mesma de alocação de recursos para os filhos mais novos que os mais velhos tiveram em sua educação. 
+
+```{r , include=TRUE, message=FALSE, warning = FALSE}
+linearMod <- lm(wage2$educ ~ wage2$brthord , data=wage2)
+
+summary(linearMod)
+```
+
+Observando o dados oferecidos, podemos concluir que o acréscimo de mais um filho leva à uma redução no retorno da educação de 0,28 e que é estatisticamente significante.
+
+### Questão c)
+Precisamos que pi2 seja diferente de zero para que betaj seja identificavél.
+A hipótese nula então é pi2=0.
+```{r , include=TRUE, message=FALSE, warning = FALSE}
+linearMod <- lm(wage2$educ ~ wage2$brthord + wage2$sibs, data=wage2)
+
+summary(linearMod)
+```
+Observando os resultados podemos afirmar que a hipótese nula é rejeitada. 
+Logo, a hipótese de identificação é válida.
+
+### Questão d)
+```{r , include=TRUE, message=FALSE, warning = FALSE}
+linearMod <- ivreg(wage2$lwage ~ wage2$educ + wage2$sibs | wage2$brthord + wage2$sibs , data=wage2)
+
+summary(linearMod)
+```
+O erro padrão do estimador de sibs é menor que o erro padrão de educ.
+
+O erro padrão de βsibs_chapeu é muito grande em relação à estimativa do coeficiente, tornando sibs muito insignificantes.
+
+
+
+
